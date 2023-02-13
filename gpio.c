@@ -1,6 +1,6 @@
 #include "gpio.h"
 
-struct gpio
+struct gpio // to access correct GPIO pins
 {
     unsigned int fsel[6];
     unsigned int reservedA;
@@ -18,23 +18,23 @@ void gpio_init(void)
     // no initialization required for this peripheral
 }
 
-void gpio_set_function(unsigned int pin, unsigned int function)
+void gpio_set_function(unsigned int pin, unsigned int function) // sets a pin to a certian function (e.g. input, output, etc.)
 {
-    if (function > 7 || function < 0)
+    if (function > 7 || function < 0) // if we have an invalid function input, do nothing
     {
         return;
     }
-    unsigned int FSEL_number = pin / 10;
-    unsigned int fsel_copy = gpio->fsel[FSEL_number];
+    unsigned int FSEL_number = pin / 10; // gets FSEL number from pin
+    unsigned int fsel_copy = gpio->fsel[FSEL_number]; // copies the FSEL value into a fsel_copy variable
     unsigned int command = function << (3 * (pin % 10)); // center the function so it aligns with where to place it in FSEL
     unsigned int B = 7 << (3 * (pin % 10));
     unsigned int notB = ~B;
     unsigned int temp = fsel_copy & notB; // FSEL but with 000 where we want function
     unsigned int want = temp | command;   // put function into FSEL
-    gpio->fsel[FSEL_number] = want;
+    gpio->fsel[FSEL_number] = want; 
 }
 
-unsigned int gpio_get_function(unsigned int pin)
+unsigned int gpio_get_function(unsigned int pin) // gets the function from a pin (tells you if pin is input, output, etc.)
 {
     unsigned int FSEL_number = pin / 10;
     unsigned int fsel_copy = gpio->fsel[FSEL_number];
@@ -44,17 +44,17 @@ unsigned int gpio_get_function(unsigned int pin)
     return final;
 }
 
-void gpio_set_input(unsigned int pin)
+void gpio_set_input(unsigned int pin) // sets pin to input
 {
     gpio_set_function(pin, GPIO_FUNC_INPUT);
 }
 
-void gpio_set_output(unsigned int pin)
+void gpio_set_output(unsigned int pin) // sets pin to output
 {
     gpio_set_function(pin, GPIO_FUNC_OUTPUT);
 }
 
-void gpio_write(unsigned int pin, unsigned int value)
+void gpio_write(unsigned int pin, unsigned int value) // writes high or low to the pin
 {
         int reg = 0;
         if (pin > 32) 
@@ -73,7 +73,7 @@ void gpio_write(unsigned int pin, unsigned int value)
         }
 }
 
-unsigned int gpio_read(unsigned int pin)
+unsigned int gpio_read(unsigned int pin) // reads high or low from the pin
 {
     int reg = 0;
     if (pin > 32)
